@@ -1,0 +1,10 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+.env
+
+# Flutter
+.build/
+.dart_tool/
+pubspec.lock
