@@ -1,0 +1,1 @@
+##Tầng giao tiếp với client, nơi định nghĩa các API và xử lý các yêu cầu từ client.
