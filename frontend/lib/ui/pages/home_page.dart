@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 
-// Import các widget của bạn (đảm bảo đường dẫn đúng với dự án)
+// Widgets
 import '../widgets/home/top_bar.dart';
 import '../widgets/home/language_selector.dart';
 import '../widgets/home/voice_wave.dart';
 import '../widgets/home/mic_button.dart';
 import '../widgets/home/translate_card.dart';
+
+// Screens
+import 'chat_screen.dart';
+import 'history_screen.dart';
+import 'setting_screen.dart'; // Đảm bảo tên file là setting_screen.dart hoặc settings_screen.dart
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -20,64 +25,63 @@ class _HomePageState extends State<HomePage> {
   String translatedText = "";
   bool isListening = false;
 
-  // 2. Quản lý điều hướng trang
+  // 2. Quản lý điều hướng tab
   int _selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
-    // Danh sách các màn hình để chuyển đổi
+    // Danh sách các màn hình chính
     final List<Widget> pages = [
-      _buildHomeContent(), // Trang chủ (Index 0)
-      const Center(
-        child: Text("Chat Screen", style: TextStyle(color: Colors.white)),
-      ), // (Index 1)
-      const Center(
-        child: Text("History Screen", style: TextStyle(color: Colors.white)),
-      ), // (Index 2)
+      _buildHomeContent(), // Index 0
+      const ChatScreen(), // Index 1
+      const HistoryScreen(), // Index 2
     ];
 
     return Scaffold(
       backgroundColor: const Color(0xFF0F172A),
       body: SafeArea(
-        child: pages[_selectedIndex], // Hiển thị trang dựa trên index được chọn
+        // Giữ trạng thái các tab khi chuyển đổi
+        child: IndexedStack(index: _selectedIndex, children: pages),
       ),
       bottomNavigationBar: _buildBottomBar(),
     );
   }
 
-  // --- NỘI DUNG CHÍNH CỦA TRANG TRANSLATE ---
-  // Trong file home_page.dart, tại phần build của _buildHomeContent
-
+  // --- NỘI DUNG TRANG CHỦ (INDEX 0) ---
   Widget _buildHomeContent() {
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Column(
         children: [
-          // TRUYỀN LỆNH CHUYỂN SANG INDEX 2 (Trang History)
+          // TopBar với 2 hành động: Chuyển tab History và Mở trang Settings
           TopBar(
             onHistoryPressed: () {
               setState(() {
                 _selectedIndex =
-                    2; // Số 2 tương ứng với vị trí History trong BottomBar
+                    2; // Chuyển sang Tab History (vị trí số 3 trên bar)
               });
+            },
+            onSettingsPressed: () {
+              // Mở trang Settings đè lên trên (có nút quay lại)
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SettingsScreen()),
+              );
             },
           ),
 
           const SizedBox(height: 20),
           const LanguageSelector(),
 
-          // ... các phần còn lại giữ nguyên
           const Spacer(),
 
           const VoiceWave(),
           const SizedBox(height: 30),
 
-          // Nút Mic (Nên thêm Callback ở đây để cập nhật speechText)
           const MicButton(),
 
           const SizedBox(height: 40),
 
-          // Card dịch thuật (Dữ liệu truyền từ HomePage xuống)
           TranslateCard(
             speechText: speechText,
             translatedText: translatedText,
@@ -93,7 +97,9 @@ class _HomePageState extends State<HomePage> {
   // --- THANH ĐIỀU HƯỚNG DƯỚI CÙNG ---
   Widget _buildBottomBar() {
     return Container(
-      margin: const EdgeInsets.only(left: 40, right: 40, bottom: 25),
+      margin: const Offset(0, -10).distance > 0
+          ? const EdgeInsets.only(left: 40, right: 40, bottom: 25)
+          : const EdgeInsets.only(left: 40, right: 40, bottom: 25),
       height: 65,
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.05),
